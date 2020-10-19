@@ -89,11 +89,10 @@ iframe {
 }
 
 .standings div {
-  border: 1px solid red;
+  /*border: 1px solid red;*/
 }
 
 .standings table {
-  border: 1px solid blue;
   margin-left: auto;
   margin-right: auto;
 }
