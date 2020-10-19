@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta charset="utf-8">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&family=Permanent+Marker&display=swap" rel="stylesheet">
+    <title>CFL Stats</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="icon" type="image/png" href="/images/maple-leaf.png"/>
+  </head>
+  <body>
+    <!--CFL API Reference page: http://api.cfl.ca/docs-->
+    <header>
+      <h1><img src="/images/maple-leaf.png" alt="Maple Leaf">
+      CFL Football Stats</h1>
+      <div class="headerBottom2"></div>
+      <div class="headerBottom"></div>
+    </header>
+
+    <div class="page">
+      <div class="contentContainer">
+        <div class="content">
+          <h2>Choose a category:</h2>
+          <select id="dropDown">
+            <option value=""></option>
+            <option value="games/">Games</option>
+            <option value="players">Players</option>
+            <option value="leaders/">Leaders</option>
+            <option value="standings/">Standings</option>
+            <option value="teams">Teams</option>
+            <option value="teams/venues">Venues</option>
+          </select>
+
+          <form id="seasonForm"></form>
+          <div id="statCategoryForm"></div>
+
+          <br><br>
+          <div id="data"></div>
+          <div id="video">
+            <h1 class="resultsHeader">2019 Season Highlights</h1>
+            <br>
+            <iframe src="https://www.youtube.com/embed/Ea8tqW1PlEY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+          </div>
+          <br><hr>
+        </div>
+        <br>
+        <img src="/images/football.png" alt="Football">
+      </div>
+    </div>
+
+    <footer>
+      <div class="footerTop"></div>
+      <div class="footerTop2"></div>
+      <p>-A project by James Belnap-</p>
+      <br>
+      <p>~Football clipart and background image from Clker-Free-Vector-Images on Pixabay~</p>
+      <p>~Maple leaf clipart from elgraphics on Pixabay~</p>
+      <br>
+      <a class="githubLink" href="#">&diams; GitHub Repository &diams;</a>
+      <br>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"
+    integrity="sha256-4iQZ6BVL4qNKlQ27TExEhBN1HFPvAvAMbFavKKosSWQ=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="/script/script.js"></script>
+  </body>
+</html>
