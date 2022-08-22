@@ -1,3 +1,15 @@
+/* TODO
+  - refactor helper method names
+  - hide/unhide video instead of removing html
+  - create enum for leaders dropdown
+  - remove unused statCategory param?
+  - put category/year/leader-category all on one line?
+  - GET /teams on inital page load, store for later use (logo next to game scores, player names, etc.)
+  - don't clear leader-category when inputting new year
+  - store queries?
+  - html/css: make background of page dark gray (no white space under footer for short pages)
+*/
+
 const GAMES = 1;
 const PLAYERS = 2;
 const LEADERS = 3;
@@ -101,43 +113,55 @@ function getVenues(json) {
   return results;
 }
 
+/**
+ * Fetch the data
+ * 
+ * @param {String} category the category selected by the user in the dropdown
+ * @param {String} categoryAPI the API endpoint pertaining to the selected category
+ * @param {String} option something for players...?
+ * @param {String} statCategory not currently used...
+ */
 function fetchCFLData(category,categoryAPI,option,statCategory="") {
-  let url = "https://cors-anywhere.herokuapp.com/api.cfl.ca/v1/";
-  let key = "key=Kozi9mJuQEY9FwloBAoST4PGdNrzvzK4";
-  let params = "";
+  const url = 'https://api.cfl.ca/v1/'
+  const key = 'Kozi9mJuQEY9FwloBAoST4PGdNrzvzK4';
+  let params = '';
 
   if (option === PLAYERS)
     params = 'page[number]=1&page[size]=100&';
 
-  fetch(url + categoryAPI + '?' + params + key, {mode: 'cors'})
+  console.log(`sending request: ${url+categoryAPI+'?'+params+key}`)
+  // fetch(url + categoryAPI + '?' + params + key)
+  axios.get(`${url}${categoryAPI}?${params}key=${key}`)
   .then(function(response) {
-    return response.json();
-  }).then(function(json) {
+    return response.data;
+  })
+  .then(function(data) {
 
     let results = '<h1 class="resultsHeader">' + category + "</h1>";
-    console.log(json);
+    console.log(data);
     //'option' parameter is the number pertaining to the category
     switch(option) {
       case GAMES: //games
-        results += getGames(json);
+        results += getGames(data);
         break;
       case PLAYERS: //players
-        results += getPlayers(json);
+        results += getPlayers(data);
         break;
       case LEADERS: //leaders
-        results += getLeaders(json);
+        results += getLeaders(data);
         break;
       case STANDINGS: //standings
-        results += getStandings(json);
+        results += getStandings(data);
         break;
       case TEAMS: //teams
-        results += getTeams(json);
+        results += getTeams(data);
         break;
       case VENUES: //venues
-        results += getVenues(json);
+        results += getVenues(data);
     }
     document.getElementById('data').innerHTML = results;
-  }).catch(function(error) {
+  })
+  .catch(function(error) {
     console.log(error);
     document.getElementById('data').innerHTML = "could not fetch data";
   })
@@ -146,7 +170,7 @@ function fetchCFLData(category,categoryAPI,option,statCategory="") {
 document.getElementById('dropDown').onchange = function(event) {
   event.preventDefault();
 
-  //remove grey cup highlights video
+  //hide grey cup highlights video
   document.getElementById('video').innerHTML = "";
 
   //get the category from the dropdown
@@ -178,9 +202,7 @@ document.getElementById('dropDown').onchange = function(event) {
         statCategoryForm += '<option value=""></option>';
         statCategoryForm += '<option value="converts">Extra Points</option>';
         statCategoryForm += '<option value="converts_2pt">2-pt Conversions</option>';
-        statCategoryForm += '<option value="field_goal_missed_return_yards">';
-        statCategoryForm += 'Missed Field Goal Return Yards</option>';
-
+        statCategoryForm += '<option value="field_goal_missed_return_yards">Missed Field Goal Return Yards</option>';
         statCategoryForm += '<option value="fumbles_forced">Forced Fumbles</option>';
         statCategoryForm += '<option value="fumbles_recoveries">Fumbles Recovered</option>';
         statCategoryForm += '<option value="interceptions">Interceptions</option>';

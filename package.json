@@ -1,0 +1,21 @@
+{
+  "name": "cfl-stats",
+  "version": "1.0.0",
+  "description": "a simple webpage for displaying cfl stats",
+  "main": "index.html",
+  "dependencies": {
+    "axios": "^0.24.0"
+  },
+  "scripts": {
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jamesiator/cfl-stats.git"
+  },
+  "author": "James Belnap",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jamesiator/cfl-stats/issues"
+  },
+  "homepage": "https://github.com/jamesiator/cfl-stats#readme"
+}
