@@ -88,9 +88,9 @@ iframe {
   text-align: center;
 }
 
-.standings div {
-  /*border: 1px solid red;*/
-}
+/* .standings div {
+  border: 1px solid red;
+} */
 
 .standings table {
   margin-left: auto;
@@ -105,6 +105,7 @@ th {
 
 td {
   font-size: 0.6em;
+  padding: 0 10px 0 10px;
 }
 
 .gameInfoContainer {

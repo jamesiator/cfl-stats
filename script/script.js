@@ -17,98 +17,147 @@ const STANDINGS = 4;
 const TEAMS = 5;
 const VENUES = 6;
 
-function getGames(json) {
-  //add 'Game' to each item in the list
-  let results = "";
-  for (let element of json.data) {
-    if (element.event_type.event_type_id != 0) { //filter out preseason games
-      results += '<br><hr><br><div class="gameInfoContainer"><div class="gameInfo">'
-      results += "<div><h2>" + element.team_1.location + "</h2>";
-      results += '<h3 style="color: #d92b2b">' + element.team_1.nickname + "</h3>";
-      results += "<p>" + element.team_1.score + "</p></div>";
+/**
+ * Helper method for displaying game data
+ * 
+ * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/games/[season]
+ * @returns {String} html in string format to display games
+ */
+function showGames({data}) {
+  // TODO: team logos, don't display scores of games that haven't started yet
+
+  const PRESEASON = 0;
+  const REG_SEASON = 1;
+  let results = '';
+
+  data.forEach(({event_type, team_1, team_2, date_start, venue}) => {
+    // don't display any preseason games
+    if (event_type.event_type_id != PRESEASON) {
+      results += '<br><hr><br><div class="gameInfoContainer"><div class="gameInfo">';
+      results += `<div><h2>${team_1.location}</h2>`;
+      results += `<h3 style="color: #d92b2b">${team_1.nickname}</h3>`;
+      results += `<p>${team_1.score}</p></div>`;
 
       results += '<div class="atBox"><h1>at</h1></div>';
 
-      results += "<div><h2>" + element.team_2.location + "</h2>";
-      results += '<h3 style="color: #d92b2b">' + element.team_2.nickname + "</h3>";
-      results += "<p>" + element.team_2.score + "</p></div>";
-      results += "</div>";
+      results += `<div><h2>${team_2.location}</h2>`;
+      results += `<h3 style="color: #d92b2b">${team_2.nickname}</h3>`;
+      results += `<p>${team_2.score}</p></div>`;
+      results += '</div>';
 
-      if (element.event_type.event_type_id != 1)
-        results += "<p>" + element.event_type.title + "</p>";
+      // if the game is not a regular season game, display event title (grey cup, etc.)
+      if (event_type.event_type_id != REG_SEASON)
+        results += `<p>${event_type.title}</p>`;
 
-      results += "<p>" + moment(element.date_start).format('MMM Do, YYYY') + "</p>";
-      results += "<p>" + element.venue.name + "</p></div>";
+      results += `<p>${moment(date_start).format('MMM Do, YYYY')}</p>`;
+      results += `<p>${venue.name}</p></div>`;
     }
-  }
+  });
+
   return results;
 };
 
-function getPlayers(json) {
-  let results = "";
-  for (let element of json.data) {
-    results += '<br><h2>' + element.first_name + ' ' + element.last_name + '</h2>';
-    results += '<p>- Position: ' + element.position.description + '</p>';
-    results += '<p>- School: ' + element.school.name + '</p>';
-  }
+/**
+ * Helper method for displaying player data
+ * 
+ * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/players
+ * @returns {String} html in string format to display players
+ */
+function showPlayers({data}) {
+  //TODO: team logos next to players
+
+  let results = '';
+
+  data.forEach(({first_name, last_name, position, school}) => {
+    results += `<br><h2>${first_name} ${last_name}</h2>`;
+    results += `<p>- Position: ${position.description}</p>`;
+    results += `<p>- School: ${school.name}</p>`;
+  });
+
   return results;
 };
 
-function getLeaders(json) {
-  let results = "";
-  for (let element of json.data) {
-    results += '<br><h2>' + element.first_name + ' ' + element.last_name;
-    results += "&nbsp;(" + element.team_location + ")</h2>";
+/**
+ * Helper method for displaying stat leader data
+ * 
+ * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/leaders/[season]/category/[category]
+ * @returns {String} html in string format to display stat leaders
+ */
+function showLeaders({data}) {
+  //TODO: store team logos in accessible data structure, display next to players
 
-    let info = document.getElementById('statCategorySelect');
-    let stat = info.options[info.selectedIndex].text;
+  let results = '';
+  const info = document.getElementById('statCategorySelect');
+  const stat = info.options[info.selectedIndex].text;
 
-    results += '<p>- ' + stat + ': ' + element[info.value] + '</p>';
-  }
+  data.forEach(leader => {
+    results += `<br><h2>${leader.first_name} ${leader.last_name} (${leader.team_location})</h2>`;
+    results += `<p>- ${stat}: ${leader[info.value]}</p>`
+  });
+
   return results;
 };
 
-function getStandings(json) {
-  //put '[season] standings' at the top
+/**
+ * Helper method for displaying league standings
+ * 
+ * @param {Object} data 'data' attribute of json returned from api.cfl.ca/v1/standings/[season]
+ * @returns {String} html in string format to display standings
+ */
+function showStandings({data}) {
+  //TODO: put team logos next to city names
+
   let results = '<br><div class="standings">';
-  for (let e of Object.values(json.data.divisions)) {
-    //debugger
-    results += '<div><h1>' + e.division_name + '<h1><table>';
-    results += '<tr><th>Team</th><th>&nbsp;Overall&nbsp;</th><th>&nbsp;Division&nbsp;</th></tr>';
 
-    for (let e2 of Object.values(e.standings)) {
-      results += '<tr><td>' + e2.location + '</td><td>' + e2.wins + ' - ' + e2.losses + '</td>';
-      results += '<td>(' + e2.division_wins + ' - ' + e2.division_losses + ')</td></tr>';
-    }
-    results += '</table></div>';
-  }
+  Object.values(data.divisions).forEach(({division_name, standings}) => {
+    results += `<div><h1>${division_name}<h1><table><tr><th>Team</th><th>Record</th>`;
+    
+    Object.values(standings).forEach(({location, wins, losses, division_wins, division_losses}) => {
+      results += `<tr><td>${location}</td><td>${wins} - ${losses} (${division_wins} - ${division_losses})</td></tr>`;
+    });
+
+    results += `</table></div>`;
+  });
+
   return results;
 };
 
-function getTeams(json) {
-  //put 'Team' before each list item
+/**
+ * Helper method for displaying teams
+ * 
+ * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/teams
+ * @returns {String} html in string format to display standings
+ */
+function showTeams({data}) {
+  
   let results = "";
-  for (let element of json.data) {
-    results += '<br><hr><br><div class="team">';
-    results += '<img src="' + element.images.logo_image_url + '">';
-    results += '<div class="teamInfo">';
-    results += '<h1>' + element.full_name + '</h1>';
-    results += '<p>Division: ' + element.division_name + '</p>';
-    results += '<p>Venue: ' + element.venue_name + '</p></div>';
-    results += "</div>";
-  }
+
+  data.forEach(({images, full_name, division_name, venue_name}) => {
+    results += `<br><hr><br><div class="team"><img src="${images.logo_image_url}">`;
+    results += `<div class="teamInfo"><h1>${full_name}</h1>`;
+    results += `<p>Division: ${division_name}</p><p>Venue: ${venue_name}</p></div></div>`;
+  });
+
   return results;
 };
 
-function getVenues(json) {
-  //put 'Venue' before each list item
+/**
+ * Helper method for displaying venues
+ * 
+ * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/teams/venues
+ * @returns {String} html in string format to display team venues
+ */
+function showVenues({data}) {
+  //TODO: team logos
+
   let results = "<ul>";
-  for (let element of json.data) {
-    if (element.Capacity != null) {
-      results += '<br><li><h2>' + element.Name + '</h2>';
-      results += ' - Capacity: ' + element.Capacity.toLocaleString() + '</li>';
+
+  data.forEach(venue => {
+    if (venue.Capacity != null) {
+      results += `<br><li><h2>${venue.Name}</h2> - Capacity: ${venue.Capacity}</li>`;
     }
-  }
+  });
+
   results += '</ul>';
   return results;
 }
@@ -126,11 +175,10 @@ function fetchCFLData(category,categoryAPI,option,statCategory="") {
   const key = 'Kozi9mJuQEY9FwloBAoST4PGdNrzvzK4';
   let params = '';
 
-  if (option === PLAYERS)
+  if (option === PLAYERS) {
     params = 'page[number]=1&page[size]=100&';
+  }
 
-  console.log(`sending request: ${url+categoryAPI+'?'+params+key}`)
-  // fetch(url + categoryAPI + '?' + params + key)
   axios.get(`${url}${categoryAPI}?${params}key=${key}`)
   .then(function(response) {
     return response.data;
@@ -142,22 +190,22 @@ function fetchCFLData(category,categoryAPI,option,statCategory="") {
     //'option' parameter is the number pertaining to the category
     switch(option) {
       case GAMES: //games
-        results += getGames(data);
+        results += showGames(data);
         break;
       case PLAYERS: //players
-        results += getPlayers(data);
+        results += showPlayers(data);
         break;
       case LEADERS: //leaders
-        results += getLeaders(data);
+        results += showLeaders(data);
         break;
       case STANDINGS: //standings
-        results += getStandings(data);
+        results += showStandings(data);
         break;
       case TEAMS: //teams
-        results += getTeams(data);
+        results += showTeams(data);
         break;
       case VENUES: //venues
-        results += getVenues(data);
+        results += showVenues(data);
     }
     document.getElementById('data').innerHTML = results;
   })
