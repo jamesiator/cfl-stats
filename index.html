@@ -23,27 +23,24 @@
       <div class="contentContainer">
         <div class="content">
           <h2>Choose a category:</h2>
-          <select id="dropDown">
-            <option value=""></option>
-            <option value="games/">Games</option>
-            <option value="players">Players</option>
-            <option value="leaders/">Leaders</option>
-            <option value="standings/">Standings</option>
-            <option value="teams">Teams</option>
-            <option value="teams/venues">Venues</option>
-          </select>
-
-          <form id="seasonForm"></form>
-          <div id="statCategoryForm"></div>
-
+          <select id="categorySelect"></select>
+          <form id="seasonForm" class="hidden">
+            <h2>Enter a year: </h2>
+            <input type="text" id="seasonInput"/>
+            <input type="submit" id="seasonSubmit" value=" submit "/> 
+          </form>
+          <div id="statCategoryForm" class="hidden">
+            <h2>Select a Stat:</h2>
+            <select id="statCategorySelect"></select>
+          </div>
           <br>
           <br>
           
-          <div id="data"></div>
+          <div id="data" class="hidden"></div>
           <div id="video">
-            <h1 class="resultsHeader">2019 Season Highlights</h1>
+            <h1 class="resultsHeader">2021 Season Highlights</h1>
             <br>
-            <iframe src="https://www.youtube.com/embed/Ea8tqW1PlEY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/VvIExhTyd2Q?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
           </div>
           <br>
           <hr>
@@ -61,7 +58,7 @@
       <p>~Football clipart and background image from Clker-Free-Vector-Images on Pixabay~</p>
       <p>~Maple leaf clipart from elgraphics on Pixabay~</p>
       <br>
-      <a class="githubLink" href="https://github.com/jamesiator/cfl-stats">&diams; GitHub Repository &diams;</a>
+      <!-- <a class="githubLink" href="https://github.com/jamesiator/cfl-stats">&diams; GitHub Repository &diams;</a> -->
       <br>
     </footer>
 
