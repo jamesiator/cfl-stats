@@ -55,7 +55,7 @@ const statLeadersDropdownOptions = {
 /**
  * On initial page load, populate dropdown values
  */
-window.onload = function() {
+window.onload = function () {
   let dropdownString = '';
   Object.entries(categoryDropdownOptions).forEach(([value, label]) => {
     dropdownString += `<option value="${value}">${label}</option>`;
@@ -75,14 +75,14 @@ window.onload = function() {
  * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/games/[season]
  * @returns {String} html in string format to display games
  */
-function showGames({data}) {
+function showGames({ data }) {
   // TODO: team logos, don't display scores of games that haven't started yet
 
   const PRESEASON = 0;
   const REG_SEASON = 1;
   let results = '';
 
-  data.forEach(({event_type, team_1, team_2, date_start, venue}) => {
+  data.forEach(({ event_type, team_1, team_2, date_start, venue }) => {
     // don't display any preseason games
     if (event_type.event_type_id != PRESEASON) {
       results += '<br><hr><br><div class="gameInfoContainer"><div class="gameInfo">';
@@ -115,12 +115,12 @@ function showGames({data}) {
  * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/players
  * @returns {String} html in string format to display players
  */
-function showPlayers({data}) {
+function showPlayers({ data }) {
   //TODO: team logos next to players
 
   let results = '';
 
-  data.forEach(({first_name, last_name, position, school}) => {
+  data.forEach(({ first_name, last_name, position, school }) => {
     results += `<br><h2>${first_name} ${last_name}</h2>`;
     results += `<p>- Position: ${position.description}</p>`;
     results += `<p>- School: ${school.name}</p>`;
@@ -135,7 +135,7 @@ function showPlayers({data}) {
  * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/leaders/[season]/category/[category]
  * @returns {String} html in string format to display stat leaders
  */
-function showLeaders({data}) {
+function showLeaders({ data }) {
   //TODO: store team logos in accessible data structure, display next to players
 
   let results = '';
@@ -156,15 +156,15 @@ function showLeaders({data}) {
  * @param {Object} data 'data' attribute of json returned from api.cfl.ca/v1/standings/[season]
  * @returns {String} html in string format to display standings
  */
-function showStandings({data}) {
+function showStandings({ data }) {
   //TODO: put team logos next to city names
 
   let results = '<br><div class="standings">';
 
-  Object.values(data.divisions).forEach(({division_name, standings}) => {
+  Object.values(data.divisions).forEach(({ division_name, standings }) => {
     results += `<div><h1>${division_name}<h1><table><tr><th>Team</th><th>Record</th>`;
-    
-    Object.values(standings).forEach(({location, wins, losses, division_wins, division_losses}) => {
+
+    Object.values(standings).forEach(({ location, wins, losses, division_wins, division_losses }) => {
       results += `<tr><td>${location}</td><td>${wins} - ${losses} (${division_wins} - ${division_losses})</td></tr>`;
     });
 
@@ -180,11 +180,11 @@ function showStandings({data}) {
  * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/teams
  * @returns {String} html in string format to display standings
  */
-function showTeams({data}) {
-  
+function showTeams({ data }) {
+
   let results = '';
 
-  data.forEach(({images, full_name, division_name, venue_name}) => {
+  data.forEach(({ images, full_name, division_name, venue_name }) => {
     results += `<br><hr><br><div class="team"><img src="${images.logo_image_url}">`;
     results += `<div class="teamInfo"><h1>${full_name}</h1>`;
     results += `<p>Division: ${division_name}</p><p>Venue: ${venue_name}</p></div></div>`;
@@ -199,7 +199,7 @@ function showTeams({data}) {
  * @param {Array} data 'data' attribute of json returned from api.cfl.ca/v1/teams/venues
  * @returns {String} html in string format to display team venues
  */
-function showVenues({data}) {
+function showVenues({ data }) {
   //TODO: team logos
 
   let results = '<ul>';
@@ -221,7 +221,7 @@ function showVenues({data}) {
  * @param {String} apiPath the API path for the desired query
  * @param {String} category the category ID, passed only if different from apiPath
  */
-async function getData(resultsHeader,apiPath, category) {
+async function getData(resultsHeader, apiPath, category) {
 
   // for players, teams, venues in which the path is the same as the category ID
   if (typeof category === 'undefined')
@@ -236,12 +236,12 @@ async function getData(resultsHeader,apiPath, category) {
   try {
     const url = `${BASE_URL}/${apiPath}?${params}key=${KEY}`;
     // console.log(`url=${url}`);
-    const {data} = await axios.get(url);
+    const { data } = await axios.get(url);
     console.log(data);
 
     const results = `<h1 class="resultsHeader">${resultsHeader}</h1>`;
 
-    switch(category) {
+    switch (category) {
       case GAMES:
         return `${results}${showGames(data)}`;
       case PLAYERS:
@@ -276,22 +276,22 @@ async function getData(resultsHeader,apiPath, category) {
  * - Teams
  * - Venues
  */
-document.getElementById('categorySelect').onchange = async function(event) {
+document.getElementById('categorySelect').onchange = async function (event) {
   event.preventDefault();
 
   // hide/unhide video/data accordingly
   if (categoryDropdown.value === '') {
-    document.getElementById('video').className = '';
+    document.getElementById('video-container').className = '';
     dataField.className = 'hidden';
   } else {
-    document.getElementById('video').className = 'hidden';
+    document.getElementById('video-container').className = 'hidden';
     document.getElementById('data').className = '';
     document.getElementById('data').innerHTML = '';
   }
 
   // send an API query or prompt for more info as needed
   if (categoryDropdown.value === GAMES || categoryDropdown.value === STANDINGS) {
-    
+
     // if the category is games or league standings, reveal prompt for season only
     document.getElementById('statLeadersForm').className = 'hidden';
     document.getElementById('seasonForm').className = '';
@@ -301,11 +301,11 @@ document.getElementById('categorySelect').onchange = async function(event) {
     // if the category is stat leaders, reveal prompts for season and stat category
     document.getElementById('statLeadersForm').className = '';
     document.getElementById('seasonForm').className = 'hidden';
-    
+
   } else { // if players, teams, or venues, no need to prompt for additional info
     document.getElementById('seasonForm').className = 'hidden';
     document.getElementById('statLeadersForm').className = 'hidden';
-    
+
     switch (categoryDropdown.value) {
       case PLAYERS:
         dataField.innerHTML = await getData(
@@ -331,7 +331,7 @@ document.getElementById('categorySelect').onchange = async function(event) {
 /**
  * Configure listener for season submit (games and league standings)
  */
-document.getElementById('seasonSubmit').addEventListener('click', async function(event) {
+document.getElementById('seasonSubmit').addEventListener('click', async function (event) {
   event.preventDefault();
 
   const season = document.getElementById('seasonInput').value;
@@ -346,7 +346,7 @@ document.getElementById('seasonSubmit').addEventListener('click', async function
 /**
  * Configure listener to set stat category dropdown to blank when year is changed
  */
-document.getElementById('statSeasonInput').onkeyup = async function(event) {
+document.getElementById('statSeasonInput').onkeyup = async function (event) {
   event.preventDefault();
   document.getElementById('statLeadersSelect').value = '';
 }
@@ -354,7 +354,7 @@ document.getElementById('statSeasonInput').onkeyup = async function(event) {
 /**
  * Configure listener for stat leader dropdown change
  */
-document.getElementById('statLeadersSelect').onchange = async function(event) {
+document.getElementById('statLeadersSelect').onchange = async function (event) {
   event.preventDefault();
 
   const season = document.getElementById('statSeasonInput').value;

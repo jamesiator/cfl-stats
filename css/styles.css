@@ -58,16 +58,29 @@ header h1 {
   padding: 0 20px;
 }
 
+#video-container {
+  text-align: center;
+}
+
 #video {
   text-align: center;
   align-items: center;
   align-content: center;
+  position: relative;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  max-width: 100%;
+  height: auto;
 }
 
-iframe {
-/*width is 1.78 times bigger than height*/
+#video iframe,
+#video object,
+#video embed {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 220px;
+  height: 100%;
 }
 
 .resultsHeader {
@@ -187,10 +200,6 @@ footer p {
   header img {
     width: 100px;
   }
-  iframe {
-    width: 80%;
-    height: 300px;
-  }
   .content {
     padding: 0;
   }
@@ -218,14 +227,11 @@ footer p {
 
 /* desktop */
 @media screen and (min-width: 921px) {
-  iframe {
-    /*width: 727;
-    height: 409;*/
-    width: 70%;
-    height: 400px;
-  }
   .content{
     text-align: left;
     width: 80%;
+  }
+  #video-container {
+    padding: 0 15% 0 15%;
   }
 }
