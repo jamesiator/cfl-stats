@@ -344,6 +344,14 @@ document.getElementById('seasonSubmit').addEventListener('click', async function
 });
 
 /**
+ * Configure listener to set stat category dropdown to blank when year is changed
+ */
+document.getElementById('statSeasonInput').onkeyup = async function(event) {
+  event.preventDefault();
+  document.getElementById('statLeadersSelect').value = '';
+}
+
+/**
  * Configure listener for stat leader dropdown change
  */
 document.getElementById('statLeadersSelect').onchange = async function(event) {
