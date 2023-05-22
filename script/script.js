@@ -1,34 +1,34 @@
 /* TODO
   - put category/year/leader-category all on one line?
   - GET /teams on inital page load, store for later use (logo next to game scores, player names, etc.)
-  - don't clear leader-category when inputting new year
-  - store queries?
+  - store/cache queries?
   - html/css: make background of page dark gray (no white space under footer for short pages)
 */
 
-const GAMES = 1;
-const PLAYERS = 2;
-const LEADERS = 3;
-const STANDINGS = 4;
-const TEAMS = 5;
-const VENUES = 6;
+const GAMES = 'games';
+const PLAYERS = 'players';
+const LEADERS = 'leaders';
+const STANDINGS = 'standings';
+const TEAMS = 'teams';
+const VENUES = 'teams/venues';
 
 const BASE_URL = 'http://api.cfl.ca/v1';
+const KEY = 'Kozi9mJuQEY9FwloBAoST4PGdNrzvzK4'; // TODO: move this to untracked file
 
 const dataField = document.getElementById('data');
-const videoField = document.getElementById('video');
+const categoryDropdown = document.getElementById('categorySelect');
 
 const categoryDropdownOptions = {
   '': '',
-  'games/': 'Games',
+  'games': 'Games',
   'players': 'Players',
-  'leaders/': 'Stat Leaders',
-  'standings/': 'League Standings',
+  'leaders': 'Stat Leaders',
+  'standings': 'League Standings',
   'teams': 'Teams',
   'teams/venues': 'Venues'
 };
 
-const statCategoryDropdownOptions = {
+const statLeadersDropdownOptions = {
   '': '',
   'converts': 'Extra Points',
   'converts_2pt': '2-pt Conversions',
@@ -52,18 +52,21 @@ const statCategoryDropdownOptions = {
   'tackles_defensive': 'Tackles'
 };
 
+/**
+ * On initial page load, populate dropdown values
+ */
 window.onload = function() {
   let dropdownString = '';
   Object.entries(categoryDropdownOptions).forEach(([value, label]) => {
     dropdownString += `<option value="${value}">${label}</option>`;
   });
-  document.getElementById('categorySelect').innerHTML = dropdownString;
+  categoryDropdown.innerHTML = dropdownString;
 
   dropdownString = '';
-  Object.entries(statCategoryDropdownOptions).forEach(([value, label]) => {
+  Object.entries(statLeadersDropdownOptions).forEach(([value, label]) => {
     dropdownString += `<option value="${value}">${label}</option>`;
   });
-  document.getElementById('statCategorySelect').innerHTML = dropdownString;
+  document.getElementById('statLeadersSelect').innerHTML = dropdownString;
 };
 
 /**
@@ -136,7 +139,7 @@ function showLeaders({data}) {
   //TODO: store team logos in accessible data structure, display next to players
 
   let results = '';
-  const info = document.getElementById('statCategorySelect');
+  const info = document.getElementById('statLeadersSelect');
   const stat = info.options[info.selectedIndex].text;
 
   data.forEach(leader => {
@@ -214,28 +217,31 @@ function showVenues({data}) {
 /**
  * Fetch the data
  * 
- * @param {String} category the category selected by the user in the dropdown
- * @param {String} categoryAPI the API endpoint pertaining to the selected category
- * @param {String} option something for players...?
+ * @param {String} resultsHeader what to display in the header above the data
+ * @param {String} apiPath the API path for the desired query
+ * @param {String} category the category ID, passed only if different from apiPath
  */
-async function getData(category,categoryAPI,option) {
-  const key = 'Kozi9mJuQEY9FwloBAoST4PGdNrzvzK4';
-  let params = '';
+async function getData(resultsHeader,apiPath, category) {
+
+  // for players, teams, venues in which the path is the same as the category ID
+  if (typeof category === 'undefined')
+    category = apiPath;
 
   // TODO: allow page scrolling (request different page numbers)
-  if (option === PLAYERS) {
+  let params = '';
+  if (category === PLAYERS) {
     params = 'page[number]=1&page[size]=100&';
   }
 
   try {
-    const url = `${BASE_URL}/${categoryAPI}?${params}key=${key}`;
-    console.log(`url=${url}`);
+    const url = `${BASE_URL}/${apiPath}?${params}key=${KEY}`;
+    // console.log(`url=${url}`);
     const {data} = await axios.get(url);
     console.log(data);
 
-    let results = `<h1 class="resultsHeader">${category}</h1>`;
+    const results = `<h1 class="resultsHeader">${resultsHeader}</h1>`;
 
-    switch(option) {
+    switch(category) {
       case GAMES:
         return `${results}${showGames(data)}`;
       case PLAYERS:
@@ -252,24 +258,17 @@ async function getData(category,categoryAPI,option) {
 
   } catch (error) {
     console.log(error);
-    return 'could not fetch data';
+    return 'could not fetch data :(';
   }
 }
 
-function hideVideo() {
-  videoField.className = 'hidden';
-  dataField.className = '';
-}
-
-function hideData() {
-  videoField.className = '';
-  dataField.className = 'hidden';
-}
-
 /**
- * Configure event listener for dropdown change
+ * Configure listener for category dropdown change.
  * 
- * Options:
+ * Hide/Reveal fields and data accordingly.
+ * 
+ * Available Options:
+ * - (blank)
  * - Games
  * - Players
  * - Stat Leaders
@@ -280,85 +279,83 @@ function hideData() {
 document.getElementById('categorySelect').onchange = async function(event) {
   event.preventDefault();
 
-  //get the category from the dropdown
-  let categoryAPI = document.getElementById('categorySelect').value;
-
   // hide/unhide video/data accordingly
-  if (categoryAPI === '') {
-    hideData();
+  if (categoryDropdown.value === '') {
+    document.getElementById('video').className = '';
+    dataField.className = 'hidden';
   } else {
-    hideVideo();
+    document.getElementById('video').className = 'hidden';
+    document.getElementById('data').className = '';
+    document.getElementById('data').innerHTML = '';
   }
 
-  //if the category is games, leaders, or standings, prompt for the desired season
-  if (categoryAPI === 'games/' || categoryAPI === 'leaders/' || categoryAPI === 'standings/') {
-
+  // send an API query or prompt for more info as needed
+  if (categoryDropdown.value === GAMES || categoryDropdown.value === STANDINGS) {
+    
+    // if the category is games or league standings, reveal prompt for season only
+    document.getElementById('statLeadersForm').className = 'hidden';
     document.getElementById('seasonForm').className = '';
 
-    //for formatting between options
-    if (categoryAPI === 'leaders/')
-      document.getElementById('statCategoryForm').className = '';
-    else
-      document.getElementById('statCategoryForm').className = 'hidden';
+  } else if (categoryDropdown.value === LEADERS) {
 
-    //season event listener
-    document.getElementById('seasonSubmit').addEventListener('click', async function(event) {
-      event.preventDefault();
-      let season = document.getElementById('seasonInput').value;
-
-      //if leaders, prompt for a statistical category
-      //if games or standings, call fetchCFLData
-      if (categoryAPI === 'leaders/') {
-
-        document.getElementById('statCategoryForm').className = '';
-
-        document.getElementById('statCategorySelect').onchange = async function(event) {
-          event.preventDefault();
-
-          let statCategory = document.getElementById('statCategorySelect');
-          let stat = statCategory.options[statCategory.selectedIndex].text;
-          dataField.innerHTML = await getData(
-            `${season} ${stat} Leaders:`,
-            `${categoryAPI}${season}/category/${statCategory.value}`,
-            LEADERS
-          );
-        }
-      } else if (categoryAPI === 'games/') {
-        dataField.innerHTML = await getData(
-          `${season} Games:`,
-          `${categoryAPI}${season}`,
-          GAMES
-        );
-      } else //standings
-      dataField.innerHTML = await getData(
-        `${season} League Standings:`,
-        `${categoryAPI}${season}`,
-        STANDINGS
-      );
-    });
-
-  } else { //if players, teams, or venues, no need to prompt for additional info
+    // if the category is stat leaders, reveal prompts for season and stat category
+    document.getElementById('statLeadersForm').className = '';
     document.getElementById('seasonForm').className = 'hidden';
-    document.getElementById('statCategoryForm').className = 'hidden';
-
-    if (categoryAPI === 'players') {
-      dataField.innerHTML = await getData(
-        'Current Players:',
-        categoryAPI,
-        PLAYERS
-      );
-    } else if (categoryAPI === 'teams') {
-      dataField.innerHTML = await getData(
-        'All Teams:',
-        categoryAPI,
-        TEAMS
-      );
-    } else if (categoryAPI === 'teams/venues') {
-      dataField.innerHTML = await getData(
-        'CFL Venues:',
-        categoryAPI,
-        VENUES
-      );
+    
+  } else { // if players, teams, or venues, no need to prompt for additional info
+    document.getElementById('seasonForm').className = 'hidden';
+    document.getElementById('statLeadersForm').className = 'hidden';
+    
+    switch (categoryDropdown.value) {
+      case PLAYERS:
+        dataField.innerHTML = await getData(
+          'Current Players:',
+          categoryDropdown.value
+        );
+        break;
+      case TEAMS:
+        dataField.innerHTML = await getData(
+          'All Teams:',
+          categoryDropdown.value
+        );
+        break;
+      case VENUES:
+        dataField.innerHTML = await getData(
+          'CFL Venues:',
+          categoryDropdown.value
+        );
     }
   }
+}
+
+/**
+ * Configure listener for season submit (games and league standings)
+ */
+document.getElementById('seasonSubmit').addEventListener('click', async function(event) {
+  event.preventDefault();
+
+  const season = document.getElementById('seasonInput').value;
+
+  dataField.innerHTML = await getData(
+    `${season} ${categoryDropdown.options[categoryDropdown.selectedIndex].text}:`,
+    `${categoryDropdown.value}/${season}`,
+    categoryDropdown.value
+  )
+});
+
+/**
+ * Configure listener for stat leader dropdown change
+ */
+document.getElementById('statLeadersSelect').onchange = async function(event) {
+  event.preventDefault();
+
+  const season = document.getElementById('statSeasonInput').value;
+  const statLeaders = document.getElementById('statLeadersSelect');
+  const stat = statLeaders.options[statLeaders.selectedIndex].text;
+
+  dataField.innerHTML = await getData(
+    `${season} ${stat} Leaders:`,
+    `${categoryDropdown.value}/${season}/category/${statLeaders.value}`,
+    categoryDropdown.value
+  );
 }
