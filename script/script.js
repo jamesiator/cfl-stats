@@ -12,8 +12,7 @@ const STANDINGS = 'standings';
 const TEAMS = 'teams';
 const VENUES = 'teams/venues';
 
-const BASE_URL = 'http://api.cfl.ca/v1';
-const KEY = 'Kozi9mJuQEY9FwloBAoST4PGdNrzvzK4'; // TODO: move this to untracked file
+const BASE_URL = 'http://localhost:3000';
 
 const dataField = document.getElementById('data');
 const categoryDropdown = document.getElementById('categorySelect');
@@ -228,15 +227,18 @@ async function getData(resultsHeader, apiPath, category) {
     category = apiPath;
 
   // TODO: allow page scrolling (request different page numbers)
-  let params = '';
+  let queryStr = '';
   if (category === PLAYERS) {
-    params = 'page[number]=1&page[size]=100&';
+    queryStr = 'page[number]=1&page[size]=100';
   }
 
   try {
-    const url = `${BASE_URL}/${apiPath}?${params}key=${KEY}`;
-    // console.log(`url=${url}`);
-    const { data } = await axios.get(url);
+
+    const { data } = await axios.post(BASE_URL, {
+      path: apiPath,
+      query: queryStr
+    });
+
     console.log(data);
 
     const results = `<h1 class="resultsHeader">${resultsHeader}</h1>`;
