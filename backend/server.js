@@ -1,6 +1,6 @@
 /* TODO: implement caching
   - timeout of 5 mins? 10 mins?
-  - add param to ignore cache?
+  - add dev param to ignore cache?
 */
 
 const express = require('express');
