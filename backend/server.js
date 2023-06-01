@@ -16,6 +16,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
+const PORT = process.argv[process.argv.length - 1];
 const KEY = process.env.key;
 
 /**
@@ -25,7 +26,7 @@ const KEY = process.env.key;
  * and forward the request to the CFL API 
  * with the API key appended
  */
-app.post('', async (req, res) => {
+app.post('/api', async (req, res) => {
 
   const path = req.body.path;
   const query = req.body.query;
@@ -45,4 +46,4 @@ app.post('', async (req, res) => {
   }
 });
 
-app.listen('3000', () => console.log('listening on port 3000'));
+app.listen(PORT, () => console.log(`listening on port ${PORT}`));

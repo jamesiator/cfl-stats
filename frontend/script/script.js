@@ -12,7 +12,7 @@ const STANDINGS = 'standings';
 const TEAMS = 'teams';
 const VENUES = 'teams/venues';
 
-const BASE_URL = 'http://localhost:3000';
+const BASE_URL = 'http://localhost:3000/api';
 
 const dataField = document.getElementById('data');
 const categoryDropdown = document.getElementById('categorySelect');
