@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({
 
 app.use(bodyParser.json());
 
-const PORT = process.argv[process.argv.length - 1];
+const PORT = process.env.port;
 const KEY = process.env.key;
 
 /**
