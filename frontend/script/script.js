@@ -12,7 +12,8 @@ const STANDINGS = 'standings';
 const TEAMS = 'teams';
 const VENUES = 'teams/venues';
 
-const BASE_URL = 'http://localhost:3000/api';
+// const BASE_URL = 'http://localhost:3000/api'; // local development
+const BASE_URL = 'https://cfl.jamesiator.com/api';
 
 const dataField = document.getElementById('data');
 const categoryDropdown = document.getElementById('categorySelect');
