@@ -1,7 +1,8 @@
 /* TODO
+  - server download images and we request images from server? - see https://stackoverflow.com/questions/3011222/dealing-with-http-content-in-https-pages
   - put category/year/leader-category all on one line?
-  - GET /teams on inital page load, store for later use (logo next to game scores, player names, etc.)
-  - store/cache queries?
+  - GET /teams on inital page load (or lazy load?), store for later use (logo next to game scores, player names, etc.)
+  - store/cache queries
   - html/css: make background of page dark gray (no white space under footer for short pages)
 */
 
@@ -17,57 +18,6 @@ const BASE_URL = 'https://cfl.jamesiator.com/api';
 
 const dataField = document.getElementById('data');
 const categoryDropdown = document.getElementById('categorySelect');
-
-const categoryDropdownOptions = {
-  '': '',
-  'games': 'Games',
-  'players': 'Players',
-  'leaders': 'Stat Leaders',
-  'standings': 'League Standings',
-  'teams': 'Teams',
-  'teams/venues': 'Venues'
-};
-
-const statLeadersDropdownOptions = {
-  '': '',
-  'converts': 'Extra Points',
-  'converts_2pt': '2-pt Conversions',
-  'field_goal_missed_return_yards': 'Missed Field Goal Return Yards',
-  'fumbles_forced': 'Forced Fumbles',
-  'fumbles_recoveries': 'Fumbles Recovered',
-  'interceptions': 'Interceptions',
-  'kickoff_return_yards': 'Kickoff Return Yards',
-  'kickoff_yards': 'Kickoff Yards',
-  'kicks_blocked': 'Blocked Kicks',
-  'passing_touchdowns': 'Passing Touchdowns',
-  'passing_yards': 'Passing Yards',
-  'receiving_touchdowns': 'Touchdown Receptions',
-  'receiving_yards': 'Receiving Yards',
-  'receiving_caught': 'Catches',
-  'receiving_targeted': 'Targets',
-  'return_yards': 'Return Yards',
-  'rushing_touchdowns': 'Rushing Touchdowns',
-  'rushing_yards': 'Rushing Yards',
-  'sacks': 'Sacks',
-  'tackles_defensive': 'Tackles'
-};
-
-/**
- * On initial page load, populate dropdown values
- */
-window.onload = function () {
-  let dropdownString = '';
-  Object.entries(categoryDropdownOptions).forEach(([value, label]) => {
-    dropdownString += `<option value="${value}">${label}</option>`;
-  });
-  categoryDropdown.innerHTML = dropdownString;
-
-  dropdownString = '';
-  Object.entries(statLeadersDropdownOptions).forEach(([value, label]) => {
-    dropdownString += `<option value="${value}">${label}</option>`;
-  });
-  document.getElementById('statLeadersSelect').innerHTML = dropdownString;
-};
 
 /**
  * Helper method for displaying game data
@@ -240,7 +190,7 @@ async function getData(resultsHeader, apiPath, category) {
       query: queryStr
     });
 
-    console.log(data);
+    // console.log(data);
 
     const results = `<h1 class="resultsHeader">${resultsHeader}</h1>`;
 
