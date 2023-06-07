@@ -190,7 +190,7 @@ async function getData(resultsHeader, apiPath, category) {
       query: queryStr
     });
 
-    // console.log(data);
+    // console.log(data); // local development
 
     const results = `<h1 class="resultsHeader">${resultsHeader}</h1>`;
 

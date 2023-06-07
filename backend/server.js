@@ -18,24 +18,31 @@ app.use(bodyParser.json());
 
 const PORT = process.env.port;
 const KEY = process.env.key;
-const CFL_DOMAIN = 'api.cfl.ca';
+const CFL_DOMAIN = 'http://api.cfl.ca';
 
 const dataMap = {};
 
 /**
- * Automatically get teams on server start, replace cfl domain with this server addr
+ * Automatically get teams on server start,
+ * replace cfl domain in image urls with this server addr
+ * 
  * - localhost:3000 if local development
+ * - cfl.jamesiator.com in production
  */
-// async function getTeams() {
-//   const { data } = await axios.get(`http://${CFL_DOMAIN}/v1/teams?key=${KEY}`);
+async function getTeams() {
+  
+  const response = await axios.get(`${CFL_DOMAIN}/v1/teams?key=${KEY}`);
 
-//   data.data.forEach( team => {
-//     team.images.image_logo_url.replace('api.cfl.ca', 'localhost:3000'); // local development
-//     team.images.image_logo_url.replace('api.cfl.ca', 'localhost:3000');
-//   });
+  response.data.data.forEach( ({ images }) => {
+    Object.entries(images).forEach( ([key, value]) => {
+      // images[key] = value.replace(CFL_DOMAIN, `http://localhost:${PORT}`); // local development
+      images[key] = value.replace(CFL_DOMAIN, `https://cfl.jamesiator.com`);
+    });
+  });
 
-//   dataMap.teams = data;
-// }
+  dataMap.teams = response.data;
+  console.log('loaded teams data');
+}
 
 /**
  * Default handler for all requests
@@ -48,49 +55,64 @@ app.post('/api', async (req, res) => {
 
   const path = req.body.path;
   const query = req.body.query;
-
-  // if (path === 'teams') {
-  //   res.send(dataMap.teams);
-
-  // } else {
+  
+  // serve cached data if possible
+  if (dataMap[path] !== undefined) {
+    console.log(`POST /${path} -> cached`);
+    res.send(dataMap[path]);
+    
+  } else {
     try {
-      const url = `http://${CFL_DOMAIN}/v1/${path}?${query}&key=${KEY}`;
+      const url = `${CFL_DOMAIN}/v1/${path}?${query}&key=${KEY}`;
       console.log(url);
       
       const response = await axios.get(url);
+      console.log(`POST /${path}`);
       console.log(response.status);
       
       res.send(response.data);
       
     } catch (error) {
+      console.log(`POST /${path}`);
       console.log(error);
       res.status(500);
       res.send('an error occurred :(');
     }
-  // }
+  }
 });
 
+/**
+ * Handler for rerouting images
+ * 
+ * Important note: all logos except for the one we use are .png, while the
+ * other is .svg. If someone were to request one of the .png logos via this
+ * server it would cause a rendering error on the frontend because we set the 
+ * 'Content-Type' header to 'image/svg+xml' 
+ */
 app.get('/images*', async (req, res) => {
 
   const path = req.path;
-
+  
   try {
-    const url = `http://${CFL_DOMAIN}${path}`;
+    const url = `${CFL_DOMAIN}${path}`;
     console.log(url);
-
+    
     const response = await axios.get(url);
+    console.log(`GET ${path}`);
     console.log(response.status);
-
+    
+    // set content-type to correct value for frontend rendering
     res.header('Content-Type','image/svg+xml');
     res.send(response.data);
-
+    
   } catch (error) {
+    console.log(`GET ${path}`);
     console.log(error);
     res.status(500);
     res.send('an error occurred :(');
   }
 });
 
-// getTeams();
+getTeams();
 
 app.listen(PORT, () => console.log(`listening on port ${PORT}`));
