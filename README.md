@@ -11,4 +11,4 @@ port=3000
 
 You will also need to run `npm install` in both the backend and frontend directories. 
 
-You can then run the proxy server by running `node server.js` in the backend directory.
+You can then run the proxy server by running `node server.js` in the backend directory (you will need to comment line 17 and uncomment line 16 in /frontend/script/script.js.
